@@ -1,6 +1,5 @@
 package com.example.wordsapp
 
-import android.content.Intent
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
@@ -51,10 +50,7 @@ class LetterAdapter :
     override fun onBindViewHolder(holder: LetterViewHolder, position: Int) {
 
         holder.button.setOnClickListener() {
-            val context = holder.itemView.context
-            val intent = Intent(context, DetailActivity::class.java)
-            intent.putExtra("LETTER", holder.button.text.toString())
-            context.startActivities(arrayOf(intent))
+            val action = LetterListFragmentDirections.actionLetterListFragmentToWordListFragment(letter = holder.button.text.toString())
         }
         val item = list.get(position)
         holder.button.text = item.toString()
@@ -66,7 +62,7 @@ class LetterAdapter :
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         override fun onInitializeAccessibilityNodeInfo(
             host: View,
-            info: AccessibilityNodeInfo
+            info: AccessibilityNodeInfogit
         ) {
             super.onInitializeAccessibilityNodeInfo(host, info)
             // Con `null` como el segundo argumento de [AccessibilityAction], el
