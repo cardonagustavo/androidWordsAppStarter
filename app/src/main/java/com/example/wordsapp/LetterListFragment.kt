@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.example.wordsapp
 
 import android.os.Bundle
@@ -15,94 +30,101 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.wordsapp.databinding.FragmentLetterListBinding
 
 /**
- * Fragmento que muestra una lista de letras con la opción de cambiar entre diseños de lista y cuadrícula.
+ * Entry fragment for the app. Displays a [RecyclerView] of letters.
  */
 class LetterListFragment : Fragment() {
     private var _binding: FragmentLetterListBinding? = null
+
+    // This property is only valid between onCreateView and
+    // onDestroyView.
     private val binding get() = _binding!!
 
+    private lateinit var recyclerView: RecyclerView
+    // Keeps track of which LayoutManager is in use for the [RecyclerView]
     private var isLinearLayoutManager = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Habilita la opción de menú en este fragmento.
         setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Retrieve and inflate the layout for this fragment
         _binding = FragmentLetterListBinding.inflate(inflater, container, false)
         val view = binding.root
         return view
     }
 
-    private lateinit var recyclerView: RecyclerView
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView = binding.recyclerView
-        // Configura el diseño inicial del RecyclerView.
+        // Sets the LayoutManager of the recyclerview
+        // On the first run of the app, it will be LinearLayoutManager
         chooseLayout()
     }
 
+    /**
+     * Frees the binding object when the Fragment is destroyed.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
-        // Limpia los recursos y evita pérdidas de memoria.
         _binding = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        // Infla el menú de opciones desde el archivo XML layout_menu.
         inflater.inflate(R.menu.layout_menu, menu)
 
         val layoutButton = menu.findItem(R.id.action_switch_layout)
-        // Configura el ícono del botón de cambio de diseño.
         setIcon(layoutButton)
     }
 
     /**
-     * Cambia entre un diseño de lista lineal y un diseño de cuadrícula para el RecyclerView.
+     * Sets the LayoutManager for the [RecyclerView] based on the desired orientation of the list.
+     *
+     * Notice that because the enclosing class has changed from an Activity to a Fragment,
+     * the signature of the LayoutManagers has to slightly change.
      */
     private fun chooseLayout() {
-        when (isLinearLayoutManager) {
-            true -> {
-                recyclerView.layoutManager = LinearLayoutManager(context)
-                recyclerView.adapter = LetterAdapter()
-            }
-            false -> {
-                recyclerView.layoutManager = GridLayoutManager(context, 4)
-                recyclerView.adapter = LetterAdapter()
-            }
+        if (isLinearLayoutManager) {
+            recyclerView.layoutManager = LinearLayoutManager(context)
+        } else {
+            recyclerView.layoutManager = GridLayoutManager(context, 4)
         }
+        recyclerView.adapter = LetterAdapter()
     }
 
-    /**
-     * Establece el ícono en el botón de menú para cambiar entre diseños de lista y cuadrícula.
-     */
     private fun setIcon(menuItem: MenuItem?) {
         if (menuItem == null)
             return
 
         menuItem.icon =
             if (isLinearLayoutManager)
-            // Establece el ícono de lista si el diseño actual es lineal.
                 ContextCompat.getDrawable(this.requireContext(), R.drawable.ic_grid_layout)
-            else
-            // Establece el ícono de cuadrícula si el diseño actual es de cuadrícula.
-                ContextCompat.getDrawable(this.requireContext(), R.drawable.ic_linear_layout)
+            else ContextCompat.getDrawable(this.requireContext(), R.drawable.ic_linear_layout)
     }
 
+    /**
+     * Determines how to handle interactions with the selected [MenuItem]
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_switch_layout -> {
-                // Cambia entre diseños al hacer clic en el botón de cambio de diseño.
+                // Sets isLinearLayoutManager (a Boolean) to the opposite value
                 isLinearLayoutManager = !isLinearLayoutManager
+                // Sets layout and icon
                 chooseLayout()
                 setIcon(item)
-                true
-            }
 
+                return true
+            }
+            // Otherwise, do nothing and use the core event handling
+
+            // when clauses require that all possible paths be accounted for explicitly,
+            // for instance both the true and false cases if the value is a Boolean,
+            // or an else to catch all unhandled cases.
             else -> super.onOptionsItemSelected(item)
         }
     }
