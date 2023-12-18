@@ -66,6 +66,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-contrib:3.4.0'
     androidTestImplementation 'androidx.navigation:navigation-testing:2.5.2'
     androidTestImplementation 'org.testng:testng:6.9.6'
-
     debugImplementation 'androidx.fragment:fragment-testing:1.5.3'
 }
